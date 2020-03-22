@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import TaskForm from './components/TaskForm';
-import Control from './components/Control';
+import TaskControl from './components/TaskControl';
 import TaskList from './components/TaskList';
 class App extends Component {
     constructor(props) {
@@ -9,7 +9,14 @@ class App extends Component {
         this.state = {
             tasks : [],
             isDisplayForm : true,
-            taskEditing : null
+            taskEditing : null,
+            filter : {
+                name : '',
+                status : -1
+            },
+            keyword : '',
+            sortBy : 'name',
+            sortValue : 1
         }
     }
 
@@ -146,8 +153,72 @@ class App extends Component {
         this.onShowForm();
     }
 
+    onFilter = (filterName, filterStatus) => {
+        filterStatus = parseInt(filterStatus, 10);
+        this.setState({
+            filter : {
+                name : filterName.toLowerCase(),
+                status : filterStatus
+            }
+        });
+    }
+
+    onSearch = (keyword) => {
+        this.setState({
+            keyword : keyword
+        }); 
+    }
+
+    onSort = (sortBy, sortValue) => {
+        this.setState({
+            sortBy : sortBy,
+            sortValue : sortValue
+        });
+    }
     render() {
-        var {tasks, isDisplayForm, taskEditing} = this.state;
+        var {
+            tasks, 
+            isDisplayForm, 
+            taskEditing, 
+            filter,
+            keyword, 
+            sortBy, 
+            sortValue
+        } = this.state;
+        //filter name before
+        if(filter) {
+            if(filter.name) {
+                tasks = tasks.filter((task) => {
+                    return task.name.toLowerCase().indexOf(filter.name) !== -1;
+                });
+            }
+            tasks = tasks.filter((task) => {
+                if(filter.status === -1) {
+                    return task;
+                }else {
+                    return task.status === (filter.status === 1 ? true : false);
+                }  
+            });    
+        }
+        if(keyword) {
+            tasks = tasks.filter((task) => {
+                return task.name.toLowerCase().indexOf(keyword) !== -1;
+            }); 
+        }
+        if(sortBy === 'name') {
+            tasks.sort((a, b) => {
+                if(a.name > b.name) return sortValue;
+                else if(a.name < b.name) return -sortValue;
+                else return 0;
+            });
+        } else if(sortBy === 'status') {
+            tasks.sort((a, b) => {
+                if(a.status > b.status) return -sortValue;
+                else if(a.status < b.status) return +sortValue;
+                else return 0;
+            });
+        }
+       
         var elementTaskForm = isDisplayForm ? 
             <TaskForm 
                 onCloseForm={this.onCloseForm}
@@ -182,13 +253,19 @@ class App extends Component {
                             Generate Data
                         </button>
                         {/* Search - Sort */}
-                        <Control></Control>
+                        <TaskControl 
+                            onSearch={this.onSearch}
+                            onSort={this.onSort}
+                            sortBy={sortBy}
+                            sortValue={sortValue}>
+                        </TaskControl>
                         {/* Form */}
                         <TaskList 
                             tasks={tasks}
                             onUpdateStatus={this.onUpdateStatus}
                             onDelete={this.onDelete}
-                            onUpdate={this.onUpdate}>
+                            onUpdate={this.onUpdate}
+                            onFilter={this.onFilter}>
                         </TaskList>
                     </div>
                 </div>

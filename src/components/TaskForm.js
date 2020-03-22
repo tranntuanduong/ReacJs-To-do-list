@@ -28,7 +28,6 @@ class TaskForm extends Component {
     onSubmit = (event) => {
         event.preventDefault();
         this.props.onSubmit(this.state);
-
         // this.onCloseForm();
     }
 
@@ -51,7 +50,7 @@ class TaskForm extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if(nextProps && nextProps.taskEditing) {
             this.setState({
                 id : nextProps.taskEditing.id,
@@ -65,7 +64,6 @@ class TaskForm extends Component {
                 status : false
             });
         }
-        
     }
 
     render() { 
