@@ -1,16 +1,36 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux';
+import * as actions from './../actions/index';
 class TaskForm extends Component {
-    onCloseForm = () => {
-        this.props.onCloseForm();
-    }
-
+  
     constructor(props) {
         super(props);
         this.state = {
             id : '',
             name : '',
-            status : false
+            status : true
         }
+    }
+
+    onCloseForm = () => {
+        this.setState({
+            id : '',
+            name : '',
+            status : true
+        })
+        this.props.onCloseForm();
+    }
+
+    onSubmit = (event) => {
+        event.preventDefault();
+        this.props.onSaveTask(this.state);
+        if(this.state.id === '') {
+            this.setState({
+                id : '',
+                name : '',
+                status : true
+            });
+        } 
     }
 
     onChange = (event) => {
@@ -25,54 +45,46 @@ class TaskForm extends Component {
         });
     }
 
-    onSubmit = (event) => {
-        event.preventDefault();
-        this.props.onSubmit(this.state);
-        // this.onCloseForm();
-    }
-
     onClear = () => {
         this.setState({
+            id : '',
             name : '',
-            status : false
+            status : true
         });
     }
 
     componentDidMount(){
-        var taskEditing = this.props.taskEditing;
-        if(taskEditing) {
-            this.setState({
-                id : taskEditing.id,
-                name : taskEditing.name,
-                status : taskEditing.status
-            });
-            // console.log(this.state)
+        if(this.props.itemEditing && this.props.itemEditing.id !== null) {
+        
+        } else {
+            this.onClear();
         }
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if(nextProps && nextProps.taskEditing) {
+        console.log(nextProps)
+        if(nextProps && nextProps.itemEditing) {
             this.setState({
-                id : nextProps.taskEditing.id,
-                name : nextProps.taskEditing.name,
-                status : nextProps.taskEditing.status
+                id : nextProps.itemEditing.id,
+                name : nextProps.itemEditing.name,
+                status : nextProps.itemEditing.status
             });
-        }else if(nextProps.taskEditing === null) {
+        }else if(nextProps.itemEditing === null) {
             this.setState({
                 id : '',
                 name : '',
-                status : false
+                status : true
             });
         }
     }
 
     render() { 
-        var {id} = this.state;
+        if(!this.props.isDisplayForm) return null;
         return (
             <div className="panel panel-warning">
                 <div className="panel-heading">                   
                     <h3 className="panel-title">
-                        {id !== ''?'Cập nhật công việc':'Thêm Công Việc'}
+                        {this.state.id !== ''?'Cập nhật công việc':'Thêm Công Việc'}
                     </h3>
                     <span 
                         className="fas fa-times-circle add-job-icon"
@@ -104,7 +116,7 @@ class TaskForm extends Component {
                             <button 
                                 type="submit" 
                                 className="btn btn-warning mr-5">
-                                {id === ''?'Thêm':'Cập nhật'}
+                                {this.state.id === ''?'Thêm':'Cập nhật'}
                             </button>&nbsp;
                             <button 
                                 type="button" 
@@ -120,4 +132,22 @@ class TaskForm extends Component {
     }
 }
 
-export default TaskForm;
+const mapStateToProps = state => {
+    return {
+        isDisplayForm : state.isDisplayForm,
+        itemEditing : state.itemEditing
+    }
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onSaveTask : (task) => {
+            dispatch(actions.saveTask(task));
+        },
+        onCloseForm : () => {
+            dispatch(actions.closeForm())
+        },
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);

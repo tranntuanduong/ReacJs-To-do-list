@@ -1,12 +1,30 @@
 import React, { Component } from 'react';
+import * as actions from './../actions/index';
+import {connect} from 'react-redux';
 class TaskSortControl extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            sortBy : 'name',
+            sortValue : 1
+        }
+    }
+
     onClick = (sortBy, sortValue) => {
-        this.props.onSort(sortBy, sortValue);
+        var sortTask = {
+            sortBy : sortBy,
+            sortValue : sortValue
+        }
+        this.props.onSortTask(sortTask);
+        
+        this.setState({
+            sortBy : sortBy,
+            sortValue : sortValue
+        })
     }
 
     UNSAFE_componentWillReceiveProps (nextProps) {
-        
     }
 
     render() {
@@ -23,7 +41,7 @@ class TaskSortControl extends Component {
                                     Tên A-Z
                                 </span>
                                 <i className={
-                                    (this.props.sortBy === 'name' && this.props.sortValue === 1)
+                                    (this.state.sortBy === 'name' && this.state.sortValue === 1)
                                                     ?"fas fa-check ml-10":""}>
                                 </i>
                             </div>
@@ -33,7 +51,7 @@ class TaskSortControl extends Component {
                                 <span className="fas fa-sort-alpha-down-alt pr-5 ml-5">
                                     Tên Z-A
                                     <i className={
-                                        (this.props.sortBy === 'name' && this.props.sortValue === -1) 
+                                        (this.state.sortBy === 'name' && this.state.sortValue === -1) 
                                                     ?"fas fa-check ml-10":""}> 
                                     </i>
                                 </span>
@@ -44,7 +62,7 @@ class TaskSortControl extends Component {
                             <div role="button" className="ml-5">
                                 Trạng Thái Kích Hoạt
                                 <i className={
-                                    (this.props.sortBy === 'status' && this.props.sortValue === 1) 
+                                    (this.state.sortBy === 'status' && this.state.sortValue === 1) 
                                                 ?"fas fa-check ml-10":""}> 
                                 </i>
                             </div>
@@ -53,7 +71,7 @@ class TaskSortControl extends Component {
                             <div role="button" className="ml-5">
                                 Trạng Thái Ẩn
                                 <i className={
-                                    (this.props.sortBy === 'status' && this.props.sortValue === -1)
+                                    (this.state.sortBy === 'status' && this.state.sortValue === -1)
                                             ?"fas fa-check ml-10":""}>
                                 </i>
                             </div>
@@ -65,4 +83,18 @@ class TaskSortControl extends Component {
     }
 }
 
-export default TaskSortControl;
+const mapStateToProps = state => {
+    return {
+        // sortTask : state.sortTask,
+    }
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onSortTask : (sortTask) => {
+            dispatch(actions.sortTask(sortTask))
+        }
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskSortControl);

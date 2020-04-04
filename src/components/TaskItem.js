@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import * as actions from './../actions/index';
+import {connect} from 'react-redux';
 class TaskItem extends Component {
 
     onUpdateStatus = () => {
-        this.props.onUpdateStatus(this.props.task.id);
+        this.props.onChangeStatus(this.props.task.id);
     }
 
     onDelete = () => {
@@ -10,7 +12,9 @@ class TaskItem extends Component {
     }
 
     onUpdate = () => {
-        this.props.onUpdate(this.props.task.id);
+        this.props.onShowForm();
+        // this.props.onUpdate(this.props.task);
+        this.props.onUpdate(this.props.task)
     }
 
     render() {
@@ -51,4 +55,27 @@ class TaskItem extends Component {
     }
 }
 
-export default TaskItem;
+const mapStateToProps = state => {
+    return {
+        itemEditing : state.itemEditing
+    }
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onChangeStatus : (id) => {
+            dispatch(actions.changeStatus(id))
+        },
+        onDelete : (id) => {
+            dispatch(actions.deleteTask(id))
+        },
+        onUpdate : (task) => {
+            dispatch(actions.updateTask(task))
+        },
+        onShowForm : () => {
+            dispatch(actions.showForm())
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskItem);
